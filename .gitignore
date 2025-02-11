@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Fortran
+*.mod
+*.o
+*.obj
+*.dll
+*.so
+*.exe
+
+# VS Code
+.vscode/
