@@ -1,9 +1,9 @@
-from app import celery
+from app import celery , redis_client
 import subprocess
 import pandas as pd
 import os
 import ctypes
-
+import uuid
 
 @celery.task(bind=True)
 def reverse_string(self, string):
@@ -85,64 +85,78 @@ def write_xy_task(self, n):
 # task para rodar write_xy_em_memoria
 @celery.task(bind=True)
 def write_xy_em_memoria_task(self, n):
-    """
-    Celery task to call Fortran DLL function.
-    
-    Args:
-        self: Task instance (auto-injected by Celery when bind=True)
-        n: Number of points to generate
-        
-    Returns:
-        dict: Status information
-    """
     try:
-        # Get absolute path to DLL
-        dll_path = os.path.abspath('./write_xy_em_memoria.dll')
-        
-        if not os.path.exists(dll_path):
-            return {
-                "status": "error",
-                "message": f"DLL not found at {dll_path}"
-            }
-
-        # Load DLL
+        # Código para chamar a função Fortran e gerar os dados
+        dll_path = os.path.abspath('./fortran_codes/write_xy_em_memoria.dll')
         fortran_dll = ctypes.CDLL(dll_path)
-        
-        # Create arrays to store the results
         x_array = (ctypes.c_float * n)()
         y_array = (ctypes.c_float * n)()
-        
-        # Define argument types and return type
         fortran_dll.write_xy_em_memoria.argtypes = [
             ctypes.c_int,
             ctypes.POINTER(ctypes.c_float),
             ctypes.POINTER(ctypes.c_float)
         ]
         fortran_dll.write_xy_em_memoria.restype = None
-        
-        # Call Fortran function
-        fortran_dll.write_xy_em_memoria(
-            ctypes.c_int(n), 
-            x_array,
-            y_array
-        )
-        
-        # Convert results to Python lists
+        fortran_dll.write_xy_em_memoria(ctypes.c_int(n), x_array, y_array)
+
+        # Converta os resultados para listas Python
         x_list = [x_array[i] for i in range(n)]
         y_list = [y_array[i] for i in range(n)]
-        
-        # Create DataFrame and convert to JSON
-        df = pd.DataFrame({
-            'x': x_list,
-            'y': y_list
-        })
-        
+
+        # Gerar um ID único para esta execução
+        task_id = self.request.id
+        print(f"Task ID: {task_id}")
+
+        # Salvar os dados no Redis com chaves únicas
+        redis_client.set(f'x_data_{task_id}', str(x_list))  # Salva a lista x
+        redis_client.set(f'y_data_{task_id}', str(y_list))  # Salva a lista y
+
         return {
             "status": "success",
             "message": f"Successfully generated {n} points",
-            "data": df.to_dict(orient='records')
+            "data": {"x": x_list, "y": y_list},
+            "task_id": task_id  # Retorna o ID único
         }
-        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+    
+@celery.task(bind=True)
+def write_xy_em_memoria_so(self, n):
+    try:
+        # Código para chamar a função Fortran e gerar os dados
+        so_path = os.path.abspath('./fortran_codes/write_xy_em_memoria.so')
+        fortran_so = ctypes.CDLL(so_path)
+        x_array = (ctypes.c_float * n)()
+        y_array = (ctypes.c_float * n)()
+        fortran_so.write_xy_em_memoria.argtypes = [
+            ctypes.c_int,
+            ctypes.POINTER(ctypes.c_float),
+            ctypes.POINTER(ctypes.c_float)
+        ]
+        fortran_so.write_xy_em_memoria.restype = None
+        fortran_so.write_xy_em_memoria(ctypes.c_int(n), x_array, y_array)
+
+        # Converta os resultados para listas Python
+        x_list = [x_array[i] for i in range(n)]
+        y_list = [y_array[i] for i in range(n)]
+
+        # Gerar um ID único para esta execução
+        task_id = self.request.id
+        print(f"Task ID: {task_id}")
+
+        # Salvar os dados no Redis com chaves únicas
+        redis_client.set(f'x_data_{task_id}', str(x_list))  # Salva a lista x
+        redis_client.set(f'y_data_{task_id}', str(y_list))  # Salva a lista y
+
+        return {
+            "status": "success",
+            "message": f"Successfully generated {n} points",
+            "data": {"x": x_list, "y": y_list},
+            "task_id": task_id  # Retorna o ID único
+        }
     except Exception as e:
         return {
             "status": "error",

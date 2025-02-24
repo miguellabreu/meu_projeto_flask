@@ -3,7 +3,7 @@
 ## Passo 01
 
 Gere um ambiente virtual com o Python, garantindo que ele está instalado em seu computador.
-Execute o seguinte comando:
+Execute o seguinte comando no diretorio do projeto:
 
 > python -m venv venv
 
@@ -19,7 +19,8 @@ Acesse o terminal do venv e baixe todas as dependências que estão no arquivo r
 
 Inicie o servidor Redis. No Windows, você pode fazer isso executando o seguinte comando no diretório onde o Redis está instalado:
 
->C:\Program Files\Redis>redis-server.exe
+>cd '.\Program Files\Redis\'
+> .\redis-server.exe
 
 ## passo 04
 Inicie o worker do Celery em um terminal separado ( no diretorio raiz
@@ -50,7 +51,7 @@ No PowerShell utilize para utilizar o compilador intel :
 
 cmd /k "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
 
->ifort /dll /MT /o write_xy_teste.dll write_xy_teste.f90 
+>ifx /dll /MT /o write_xy_teste.dll write_xy_teste.f90 
 
 Isso garantirá que todas as bibliotecas necessárias sejam vinculadas estaticamente, evitando dependências externas.
 
@@ -65,3 +66,10 @@ dumpbin /dependents write_xy.dll (para verificar dependencias )
 
 Isso exibirá uma lista de todas as funções exportadas pela DLL, permitindo que você verifique se a compilação foi bem-sucedida e se todas as funções esperadas estão presentes.
 
+## Utilizando o Flower
+
+Para acessar a interface do Flower, abra seu navegador e vá para o seguinte endereço:
+
+> [http://127.0.0.1:5555/](http://127.0.0.1:5555/)
+
+Isso permitirá que você monitore as tarefas do Celery, visualize estatísticas e gerencie workers de forma fácil e intuitiva.

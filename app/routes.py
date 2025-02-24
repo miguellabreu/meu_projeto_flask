@@ -1,7 +1,7 @@
 from flask import jsonify, request
-from app import app, celery
+from app import app, celery , redis_client
 from app.tasks import reverse_string
-from app.tasks import solver_fortran , write_xy_task , write_xy_em_memoria_task
+from app.tasks import solver_fortran , write_xy_task , write_xy_em_memoria_task , write_xy_em_memoria_so
 import subprocess
 
 @app.route('/')
@@ -91,3 +91,33 @@ def write_xy_em_memoria():
             "task_id": task.id  
         })
 
+@app.route('/get_xy_data/<task_id>', methods=['GET'])
+def get_xy_data(task_id):
+    print(f"Fetching data for Task ID: {task_id}")
+    # Recupere os dados do Redis usando o task_id
+    x_data = redis_client.get(f'x_data_{task_id}')
+    y_data = redis_client.get(f'y_data_{task_id}')
+
+    if not x_data or not y_data:
+        print(f"Data not found for Task ID: {task_id}")
+        return jsonify({"status": "error", "message": "Data not found in Redis"}), 404
+
+    # Converta os dados de volta para listas
+    x_list = eval(x_data.decode('utf-8'))  # Converte string para lista
+    y_list = eval(y_data.decode('utf-8'))  # Converte string para lista
+
+    return jsonify({
+        "status": "success",
+        "task_id": task_id,
+        "data": {"x": x_list, "y": y_list}
+    })
+
+@app.route('/write_xy_em_memoria_so', methods=['POST'])
+def write_xy_em_memoria_so_route():
+    n = request.json.get('n')
+    print('n', n)
+    task = write_xy_em_memoria_so.delay(n)
+    return jsonify({
+        "status": "Task started",
+        "task_id": task.id  
+    })

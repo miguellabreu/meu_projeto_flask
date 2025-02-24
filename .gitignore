@@ -9,7 +9,6 @@ venv/
 *.mod
 *.o
 *.obj
-*.dll
 *.so
 *.exe
 
