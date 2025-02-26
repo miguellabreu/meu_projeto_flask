@@ -58,9 +58,6 @@ Isso garantirá que todas as bibliotecas necessárias sejam vinculadas estaticam
 No WSL:
 
 > gfortran -shared -fPIC -o write_xy_em_memoria.so write_xy_em_memoria.f90
-NEEDED:  
-        NEEDED               libgfortran.so.5
-        NEEDED               libm.so.6
 
 
 
@@ -75,6 +72,9 @@ dumpbin /dependents write_xy.dll (para verificar dependencias )
 
 No Wsl:
 > ldd write_xy_em_memoria.so
+NEEDED:  
+        NEEDED               libgfortran.so.5
+        NEEDED               libm.so.6
 
 Isso exibirá uma lista de todas as funções exportadas pela DLL, permitindo que você verifique se a compilação foi bem-sucedida e se todas as funções esperadas estão presentes.
 
