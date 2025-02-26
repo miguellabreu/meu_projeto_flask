@@ -1,0 +1,40 @@
+# Python cache files and virtual environments
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+.env
+.venv/
+venv/
+
+# Development files
+.git/
+.vscode/
+.gitignore
+*.ipynb
+
+# Exclude all Fortran build artifacts except specific files
+fortran_codes/**/*.mod
+fortran_codes/**/*.o
+fortran_codes/**/*.obj
+fortran_codes/**/*.exp
+fortran_codes/**/*.lib
+fortran_codes/**/*.dll
+
+# Explicitly include required Fortran files
+!fortran_codes/write_xy_em_memoria.so
+!fortran_codes/write_xy_em_memoria.f90
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Test files
+teste.py
+fortranTeste.ipynb
+
+# Additional exclusions
+**/.vs/
+**/*.vsidx
+**/*.db-*
+**/*.sqlite

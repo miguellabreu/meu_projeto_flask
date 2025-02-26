@@ -9,8 +9,8 @@ venv/
 *.mod
 *.o
 *.obj
-*.so
 *.exe
+*.so.*
 
 # VS Code
 .vscode/

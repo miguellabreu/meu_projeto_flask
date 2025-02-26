@@ -55,6 +55,15 @@ cmd /k "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
 
 Isso garantirá que todas as bibliotecas necessárias sejam vinculadas estaticamente, evitando dependências externas.
 
+No WSL:
+
+> gfortran -shared -fPIC -o write_xy_em_memoria.so write_xy_em_memoria.f90
+NEEDED:  
+        NEEDED               libgfortran.so.5
+        NEEDED               libm.so.6
+
+
+
 ## Verificando a DLL com dumpbin
 
 Para verificar as exportações de uma DLL, você pode usar a ferramenta `dumpbin` que vem com o Visual Studio. Execute o seguinte comando no terminal:
@@ -63,6 +72,9 @@ Para verificar as exportações de uma DLL, você pode usar a ferramenta `dumpbi
 
 
 dumpbin /dependents write_xy.dll (para verificar dependencias )
+
+No Wsl:
+> ldd write_xy_em_memoria.so
 
 Isso exibirá uma lista de todas as funções exportadas pela DLL, permitindo que você verifique se a compilação foi bem-sucedida e se todas as funções esperadas estão presentes.
 

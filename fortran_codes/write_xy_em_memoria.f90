@@ -1,6 +1,6 @@
 
     subroutine write_xy_em_memoria(n, x_array, y_array) bind(c, name='write_xy_em_memoria')
-       
+        
         use, intrinsic :: iso_c_binding
         implicit none
         integer(c_int), value, intent(in) :: n
@@ -18,3 +18,4 @@
         
     end subroutine write_xy_em_memoria
     
+
